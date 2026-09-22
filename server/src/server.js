@@ -8,7 +8,7 @@ const authRoutes = require("./routes/auth");
 const voiceRoutes = require("./routes/voice");
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || "https://vbawsd-server.onrender.com";
 
 // Connect MongoDB
 connectDB();
@@ -16,7 +16,7 @@ connectDB();
 /* ---------- CORS (allow React dev origin) ---------- */
 app.use(
   cors({
-    origin: "http://localhost:5173", // your Vite dev server
+    origin: "https://vbawsd-client.onrender.com", // your Vite dev server
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })

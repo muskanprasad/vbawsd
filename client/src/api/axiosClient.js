@@ -3,7 +3,7 @@ import axios from "axios";
 
 // baseURL used in your project
 const axiosClient = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "https://vbawsd-server.onrender.com",
   timeout: 20000, // 20s timeout
 });
 
