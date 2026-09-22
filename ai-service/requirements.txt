@@ -9,3 +9,4 @@ speechbrain
 joblib
 scikit-learn
 pydub
+python-multipart
