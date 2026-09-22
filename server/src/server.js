@@ -8,7 +8,7 @@ const authRoutes = require("./routes/auth");
 const voiceRoutes = require("./routes/voice");
 
 const app = express();
-const PORT = process.env.PORT || "https://vbawsd-server.onrender.com";
+const PORT = process.env.PORT || 5000;
 
 // Connect MongoDB
 connectDB();
