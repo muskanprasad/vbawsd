@@ -10,7 +10,7 @@ import axiosClient from "./axiosClient";
 export const signup = (data) => axiosClient.post("/api/auth/signup", data).then(r => r.data);
 
 export const loginApi = (data) =>
-  axiosClient.post("/auth/login", data).then((r) => r.data);
+  axiosClient.post("/api/auth/login", data).then((r) => r.data);
 
 // optionally export a /me or verify token endpoint if backend provides
 export const me = () => axiosClient.get("/auth/me").then(r => r.data);
