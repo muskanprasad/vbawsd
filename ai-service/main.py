@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, Form, HTTPException, Request
 import numpy as np
 import librosa
 import joblib
@@ -17,11 +17,9 @@ SPOOF_SCALER_PATH = os.path.join(BASE_DIR, "models", "spoof_scaler.joblib")
 spoof_model = joblib.load(SPOOF_MODEL_PATH)
 spoof_scaler = joblib.load(SPOOF_SCALER_PATH)
 
-# ================= FINAL THRESHOLDS =================
 Z_THRESHOLD = 1.20
 SPOOF_THRESHOLD = 0.30
 
-# ================= AUDIO =================
 def load_audio(file_bytes, target_sr=16000):
     audio, sr = sf.read(io.BytesIO(file_bytes), dtype="float32")
     if audio.ndim > 1:
@@ -44,46 +42,65 @@ def compute_spoof_score(audio):
 
 # ================= ENROLL =================
 @app.post("/ai/enroll")
-async def enroll(file: UploadFile = File(...)):
+async def enroll(request: Request):
     try:
-        audio = load_audio(await file.read())
+        # Accept raw audio/wav bytes from Node
+        audio_bytes = await request.body()
+        if not audio_bytes:
+            raise HTTPException(status_code=400, detail="No audio received")
+        
+        audio = load_audio(audio_bytes)
         emb = extract_embedding(audio)
-        return {"embedding": emb.tolist()}
+        spoof_score = compute_spoof_score(audio)
+        
+        return {
+            "embedding": emb.tolist(),
+            "spoofScore": float(spoof_score)
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 # ================= VERIFY =================
 @app.post("/ai/verify")
-async def verify(
-    file: UploadFile = File(...),
-    stored_embedding: str = Form(...),
-    z_score: float = Form(...)
-):
+async def verify(request: Request):
     try:
-        centroid = np.array(json.loads(stored_embedding), dtype=np.float32)
-    except Exception:
-        raise HTTPException(status_code=400, detail="Invalid centroid")
-
-    audio = load_audio(await file.read())
-    emb = extract_embedding(audio)
-
-    similarity = float(np.dot(emb, centroid))
-    spoof_score = compute_spoof_score(audio)
-
-    if spoof_score >= SPOOF_THRESHOLD:
-        decision = "REJECT"
-        reason = "Spoof detected"
-    elif z_score < Z_THRESHOLD:
-        decision = "REJECT"
-        reason = "Low similarity"
-    else:
-        decision = "ACCEPT"
-        reason = "Voice matched"
-
-    return {
-        "similarity": round(similarity, 6),
-        "zScore": round(z_score, 3),
-        "spoofScore": round(spoof_score, 6),
-        "decision": decision,
-        "reason": reason
-    }
+        # Parse JSON body from Node
+        body = await request.json()
+        audio_base64 = body.get("audio")
+        stored_embedding = body.get("storedEmbedding")
+        
+        if not audio_base64 or not stored_embedding:
+            raise HTTPException(status_code=400, detail="Missing audio or embedding")
+        
+        # Decode base64 audio
+        import base64
+        audio_bytes = base64.b64decode(audio_base64)
+        
+        centroid = np.array(stored_embedding, dtype=np.float32)
+        audio = load_audio(audio_bytes)
+        emb = extract_embedding(audio)
+        
+        similarity = float(np.dot(emb, centroid))
+        spoof_score = compute_spoof_score(audio)
+        
+        # Compute z-score (distance from centroid)
+        z_score = similarity
+        
+        if spoof_score >= SPOOF_THRESHOLD:
+            decision = "REJECT"
+            reason = "Spoof detected"
+        elif z_score < Z_THRESHOLD:
+            decision = "REJECT"
+            reason = "Low similarity"
+        else:
+            decision = "ACCEPT"
+            reason = "Voice matched"
+        
+        return {
+            "similarity": round(similarity, 6),
+            "spoofScore": round(spoof_score, 6),
+            "decision": decision,
+            "reason": reason
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
