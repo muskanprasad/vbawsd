@@ -4,7 +4,7 @@ import axios from "axios";
 // baseURL used in your project
 const axiosClient = axios.create({
   baseURL: "https://vbawsd-server.onrender.com",
-  timeout: 20000, // 20s timeout
+  timeout: 60000, // 60s timeout
 });
 
 // attach token (if present)
