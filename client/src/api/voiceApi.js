@@ -11,7 +11,7 @@ export const enrollVoice = async (audioBlob) => {
   const formData = new FormData();
   formData.append("audio", audioBlob, "sample.wav");
   // you can append other fields like username if backend requires them
-  const res = await axiosClient.post("/voice/enroll", formData, {
+  const res = await axiosClient.post("/api/voice/enroll", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return res.data;
@@ -20,7 +20,7 @@ export const enrollVoice = async (audioBlob) => {
 export const verifyVoice = async (audioBlob) => {
   const formData = new FormData();
   formData.append("audio", audioBlob, "sample.wav");
-  const res = await axiosClient.post("/voice/verify", formData, {
+  const res = await axiosClient.post("/api/voice/verify", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return res.data;
