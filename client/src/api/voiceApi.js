@@ -8,24 +8,20 @@ import axiosClient from "./axiosClient";
  */
 
 export const enrollVoice = async (audioBlob) => {
-  const formData = new FormData();
-  formData.append("audio", audioBlob, "sample.wav");
-  // you can append other fields like username if backend requires them
-  const res = await axiosClient.post("/api/voice/enroll", formData, {
-    headers: { "Content-Type": "audio/wa" },
+  const res = await axiosClient.post("/api/voice/enroll", audioBlob, {
+    headers: { "Content-Type": "audio/wav" },
+    transformRequest: [(data) => data], // don't transform the blob
   });
   return res.data;
 };
 
 export const verifyVoice = async (audioBlob) => {
-  const formData = new FormData();
-  formData.append("audio", audioBlob, "sample.wav");
-  const res = await axiosClient.post("/api/voice/verify", formData, {
+  const res = await axiosClient.post("/api/voice/verify", audioBlob, {
     headers: { "Content-Type": "audio/wav" },
+    transformRequest: [(data) => data],
   });
   return res.data;
 };
-
 
 // // voiceApi.js (DEMO MODE)
 
