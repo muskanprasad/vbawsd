@@ -8,7 +8,7 @@ VOX_PATH = "data/eval_dataset/voxceleb"
 
 ENROLLED_SPEAKER = "speaker_61"
 N_ENROLL = 3
-Z_THRESHOLD = 1.20
+Z_THRESHOLD = 0.70
 
 def enroll_single(wav):
     with open(wav, "rb") as f:

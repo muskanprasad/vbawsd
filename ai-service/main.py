@@ -17,7 +17,7 @@ SPOOF_SCALER_PATH = os.path.join(BASE_DIR, "models", "spoof_scaler.joblib")
 spoof_model = joblib.load(SPOOF_MODEL_PATH)
 spoof_scaler = joblib.load(SPOOF_SCALER_PATH)
 
-Z_THRESHOLD = 1.20
+Z_THRESHOLD = 0.70
 SPOOF_THRESHOLD = 0.30
 
 def load_audio(file_bytes, target_sr=16000):
