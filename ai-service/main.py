@@ -104,3 +104,7 @@ async def verify(request: Request):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
