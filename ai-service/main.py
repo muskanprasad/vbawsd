@@ -108,3 +108,8 @@ async def verify(request: Request):
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+@app.get("/health")
+@app.head("/health")
+async def health():
+    return {"status": "ok"}
